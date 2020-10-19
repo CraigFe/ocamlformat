@@ -487,6 +487,26 @@ let fmt_quoted_string key ext s = function
         (str (Format.sprintf "|%s}" delim))
         (str s)
 
+module Meta_ocaml = struct
+  type t =
+    {wrap: Fmt.t -> Fmt.t; parens: bool; remaining_attrs: attribute list}
+
+  let wrap_if_quoted ~attrs ~parens =
+    if List.exists attrs ~f:Ast.Attr.is_staging_quote then
+      { wrap= wrap ".<" ">."
+      ; parens= false
+      ; remaining_attrs=
+          List.filter attrs ~f:(fun a -> not (Ast.Attr.is_staging_quote a))
+      }
+    else if List.exists attrs ~f:Ast.Attr.is_staging_escape then
+      { wrap= wrap ".~(" ")"
+      ; parens= false
+      ; remaining_attrs=
+          List.filter attrs ~f:(fun a -> not (Ast.Attr.is_staging_escape a))
+      }
+    else {wrap= (fun x -> x); parens; remaining_attrs= attrs}
+end
+
 let rec fmt_extension c ctx key (ext, pld) =
   match (key, ext.txt, pld, ctx) with
   (* invalid nodes are printed as verbatim *)
@@ -1506,15 +1526,23 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
   @@ fun c ->
   Cmts.relocate_wrongfully_attached_cmts c.cmts c.source exp ;
   let fmt_cmts = Cmts.fmt c ?eol pexp_loc in
-  let fmt_atrs = fmt_attributes c ~pre:Space ~key:"@" pexp_attributes in
-  let has_attr = not (List.is_empty pexp_attributes) in
   let parens = Option.value parens ~default:(parenze_exp xexp) in
   let ctx = Exp exp in
   let fmt_args_grouped ?epi e0 a1N =
     fmt_args_grouped c ctx ?epi ((Nolabel, e0) :: a1N)
   in
+  let wrap_meta, parens, pexp_attributes =
+    let r = Meta_ocaml.wrap_if_quoted ~attrs:pexp_attributes ~parens in
+    (r.wrap, r.parens, r.remaining_attrs)
+  in
+  let pexp_attributes =
+    List.filter pexp_attributes ~f:(fun a ->
+        not (Ast.Attr.is_staging_quote a || Ast.Attr.is_staging_escape a))
+  in
+  let fmt_atrs = fmt_attributes c ~pre:Space ~key:"@" pexp_attributes in
+  let has_attr = not (List.is_empty pexp_attributes) in
   hvbox_if box 0 ~name:"expr"
-  @@ fmt_cmts
+  @@ fmt_cmts @@ wrap_meta
   @@ (fun fmt -> fmt_opt pro $ fmt)
   @@
   match pexp_desc with

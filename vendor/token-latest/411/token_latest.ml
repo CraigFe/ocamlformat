@@ -82,6 +82,7 @@ type token = Parser.token =
   | HASH
   | GREATERRBRACKET
   | GREATERRBRACE
+  | GREATERDOT
   | GREATER
   | FUNCTOR
   | FUNCTION
@@ -97,7 +98,9 @@ type token = Parser.token =
   | END
   | ELSE
   | DOWNTO
+  | DOTTILDE
   | DOTOP of string
+  | DOTLESS
   | DOTDOT
   | DOT
   | DONE

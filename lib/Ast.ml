@@ -232,6 +232,14 @@ module Attr = struct
   let is_doc = function
     | {attr_name= {Location.txt= "ocaml.doc" | "ocaml.text"; _}; _} -> true
     | _ -> false
+
+  let is_staging_quote = function
+    | {attr_name= {Location.txt= "metaocaml.bracket"; _}; _} -> true
+    | _ -> false
+
+  let is_staging_escape = function
+    | {attr_name= {Location.txt= "metaocaml.escape"; _}; _} -> true
+    | _ -> false
 end
 
 module Exp = struct

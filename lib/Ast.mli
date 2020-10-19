@@ -20,6 +20,14 @@ val init : Conf.t -> unit
 module Attr : sig
   val is_doc : attribute -> bool
   (** Holds for docstrings, that are attributes of the form [(** ... *)]. *)
+
+  val is_staging_quote : attribute -> bool
+  (** Holds for attributes that denote MetaOCaml quasi-quotations of the form
+      [.< e >.]. *)
+
+  val is_staging_escape : attribute -> bool
+  (** Holds for attributes that denote MetaOCaml staging escapes of the form
+      [.~(e)]. *)
 end
 
 module String_id : sig

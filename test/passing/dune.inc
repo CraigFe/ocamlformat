@@ -2262,6 +2262,16 @@
 (rule
  (deps .ocamlformat )
  (action
+   (with-outputs-to staging.ml.output
+     (run %{bin:ocamlformat} %{dep:staging.ml}))))
+
+(rule
+ (alias runtest)
+ (action (diff staging.ml staging.ml.output)))
+
+(rule
+ (deps .ocamlformat )
+ (action
    (with-outputs-to str_value.ml.output
      (run %{bin:ocamlformat} %{dep:str_value.ml}))))
 
