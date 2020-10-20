@@ -1535,10 +1535,6 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
     let r = Meta_ocaml.wrap_if_quoted ~attrs:pexp_attributes ~parens in
     (r.wrap, r.parens, r.remaining_attrs)
   in
-  let pexp_attributes =
-    List.filter pexp_attributes ~f:(fun a ->
-        not (Ast.Attr.is_staging_quote a || Ast.Attr.is_staging_escape a))
-  in
   let fmt_atrs = fmt_attributes c ~pre:Space ~key:"@" pexp_attributes in
   let has_attr = not (List.is_empty pexp_attributes) in
   hvbox_if box 0 ~name:"expr"
