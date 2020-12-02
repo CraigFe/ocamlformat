@@ -284,6 +284,16 @@
 (rule
  (deps .ocamlformat )
  (action
+   (with-outputs-to break_infix_fit_or_vertical.ml.output
+     (run %{bin:ocamlformat} %{dep:break_infix_fit_or_vertical.ml}))))
+
+(rule
+ (alias runtest)
+ (action (diff break_infix_fit_or_vertical.ml break_infix_fit_or_vertical.ml.output)))
+
+(rule
+ (deps .ocamlformat )
+ (action
    (with-outputs-to break_record.ml.output
      (run %{bin:ocamlformat} --profile=janestreet --margin=58 %{dep:break_record.ml}))))
 
